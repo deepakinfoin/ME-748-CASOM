@@ -1,0 +1,145 @@
+%Since the length of AG is greater than the sum of length of AD and %DG the
+%length of DG being smallest of those 3 is doubled.
+%Mechanism made of t=0s and time step of 1s for 3 steps
+
+t1=0;
+omega=0.90;
+ebc=acos((134*134+198*198-121*121)/(2*134*198));
+dag=acos((186*186+299*299-208*208)/(2*186*299));
+
+function y = f (q)
+y=zeros(18,1);
+y(1)=q(1,1);
+y(2)=q(2,1);
+y(3)=q(3,1);
+y(4)=q(4,1)-q(1,1);
+y(5)=q(5,1)-q(2,1);
+y(6)=q(7,1)-q(4,1)-73*cos(q(6,1));
+y(7)=q(8,1)-q(5,1)-73*sin(q(6,1));
+y(8)=q(10,1)-q(7,1)-198*cos(q(9,1));
+y(9)=q(11,1)-q(8,1)-198*sin(q(9,1));
+y(10)=186-q(10,1)-157*cos(q(12,1));
+y(11)=q(11,1)+157*sin(q(12,1));
+y(12)=q(13,1)-q(7,1)-134*cos(-(0.6414)+q(9,1));
+y(13)=q(14,1)-q(8,1)-134*sin(-(0.6414)+q(9,1));
+y(14)=q(16,1)-q(13,1)-207*cos(q(15,1));
+y(15)=q(17,1)-q(14,1)-207*sin(q(15,1));
+y(16)=299*cos(0.7586)-q(16,1)-196*cos(q(18,1));
+y(17)=-299*sin(0.7586)-q(17,1)-196*sin(q(18,1));
+y(18)=q(6,1)-0.9*0;
+endfunction
+[q2, fval, info,info2,Ck] = fsolve (@f,[0;0;0;0;0;0;73;0;0;100;80;4.88;10;155;4.5;180;10;0.18])
+figure(1)
+plot([q2(4) q2(7)],[q2(5) q2(8)],'linewidth',3,
+[q2(7) q2(10)],[q2(8) q2(11)],'linewidth',3,
+[q2(10) q2(13)],[q2(11) q2(14)],'linewidth',3,
+[q2(7) q2(13)],[q2(8) q2(14)],'linewidth',3,
+[q2(10) q2(1)+186],[q2(11) (q2(1))],'linewidth',3,
+[q2(13) q2(16)],[q2(14) q2(17)],'linewidth',3,
+[q2(16) 299*cos(dag)],[q2(17) -299*sin(dag)],'linewidth',3);
+
+%%Calculation of velocities and accelerations
+Ct=zeros(18,1);
+Ct(18,1)=-0.9;
+%%Calculation of Velocity
+qdot=-Ck\Ct;
+Ctt=zeros(18,1);
+Cqt=zeros(18,18);
+%%Calculation of accelerations
+qdot2=Ck\(-Ctt-Ck*qdot+2*Cqt*qdot);
+t2=[1;2;3];
+%%Calculation of initial conditions for different time marching
+qs1=q2+qdot*t2(1)+1/2*qdot2*t2(1)*t2(1);
+qs2=q2+qdot*t2(2)+1/2*qdot2*t2(2)*t2(2);
+qs3=q2+qdot*t2(3)+1/2*qdot2*t2(3)*t2(3);
+qs=[qs1,qs2,qs3];
+function y = f1 (q)
+y=zeros(18,1);
+y(1)=q(1,1);
+y(2)=q(2,1);
+y(3)=q(3,1);
+y(4)=q(4,1)-q(1,1);
+y(5)=q(5,1)-q(2,1);
+y(6)=q(7,1)-q(4,1)-73*cos(q(6,1));
+y(7)=q(8,1)-q(5,1)-73*sin(q(6,1));
+y(8)=q(10,1)-q(7,1)-198*cos(q(9,1));
+y(9)=q(11,1)-q(8,1)-198*sin(q(9,1));
+y(10)=186-q(10,1)-151*cos(q(12,1));
+y(11)=q(11,1)+151*sin(q(12,1));
+y(12)=q(13,1)-q(7,1)-134*cos(-(0.6414)+q(9,1));
+y(13)=q(14,1)-q(8,1)-134*sin(-(0.6414)+q(9,1));
+y(14)=q(16,1)-q(13,1)-207*cos(q(15,1));
+y(15)=q(17,1)-q(14,1)-207*sin(q(15,1));
+y(16)=299*cos(0.7586)-q(16,1)-196*cos(q(18,1));
+y(17)=-299*sin(0.7586)-q(17,1)-196*sin(q(18,1));
+y(18)=q(6,1)-0.9*1;
+endfunction
+[q3, fval, info,info2,Ck] = fsolve (@f1,qs(:,1));
+figure(2)
+plot([q3(4) q3(7)],[q3(5) q3(8)],'linewidth',3,[q3(7) q3(10)],[q3(8) q3(11)],'linewidth',3,
+[q3(10) q3(13)],[q3(11) q3(14)],'linewidth',3,
+[q3(7) q3(13)],[q3(8) q3(14)],'linewidth',3,
+[q3(10) (q3(1)+186)],[q3(11) (q3(1))],'linewidth',3,
+[q3(13) q3(16)],[q3(14) q3(17)],'linewidth',3,
+[q3(16) 299*cos(dag)],[q3(17) -299*sin(dag)],'linewidth',3);
+
+function y = f2 (q)
+y=zeros(18,1);
+y(1)=q(1,1);
+y(2)=q(2,1);
+y(3)=q(3,1);
+y(4)=q(4,1)-q(1,1);
+y(5)=q(5,1)-q(2,1);
+y(6)=q(7,1)-q(4,1)-73*cos(q(6,1));
+y(7)=q(8,1)-q(5,1)-73*sin(q(6,1));
+y(8)=q(10,1)-q(7,1)-198*cos(q(9,1));
+y(9)=q(11,1)-q(8,1)-198*sin(q(9,1));
+y(10)=186-q(10,1)-151*cos(q(12,1));
+y(11)=q(11,1)+151*sin(q(12,1));
+y(12)=q(13,1)-q(7,1)-134*cos(-(0.6414)+q(9,1));
+y(13)=q(14,1)-q(8,1)-134*sin(-(0.6414)+q(9,1));
+y(14)=q(16,1)-q(13,1)-207*cos(q(15,1));
+y(15)=q(17,1)-q(14,1)-207*sin(q(15,1));
+y(16)=299*cos(0.7586)-q(16,1)-196*cos(q(18,1));
+y(17)=-299*sin(0.7586)-q(17,1)-196*sin(q(18,1));
+y(18)=q(6,1)-0.9*2;
+endfunction
+[q4, fval, info,info2,Ck] = fsolve (@f2,qs(:,2));
+figure(3)
+plot([q4(4) q4(7)],[q4(5) q4(8)],'linewidth',3,[q4(7) q4(10)],[q4(8) q4(11)],'linewidth',3,
+[q4(10) q4(13)],[q4(11) q4(14)],'linewidth',3,
+[q4(7) q4(13)],[q4(8) q4(14)],'linewidth',3,
+[q4(10) (q4(1)+186)],[q4(11) (q4(1))],'linewidth',3,
+[q4(13) q4(16)],[q4(14) q4(17)],'linewidth',3,
+[q4(16) 299*cos(dag)],[q4(17) -299*sin(dag)],'linewidth',3);
+
+function y = f3 (q)
+y=zeros(18,1);
+y(1)=q(1,1);
+y(2)=q(2,1);
+y(3)=q(3,1);
+y(4)=q(4,1)-q(1,1);
+y(5)=q(5,1)-q(2,1);
+y(6)=q(7,1)-q(4,1)-73*cos(q(6,1));
+y(7)=q(8,1)-q(5,1)-73*sin(q(6,1));
+y(8)=q(10,1)-q(7,1)-198*cos(q(9,1));
+y(9)=q(11,1)-q(8,1)-198*sin(q(9,1));
+y(10)=186-q(10,1)-151*cos(q(12,1));
+y(11)=q(11,1)+151*sin(q(12,1));
+y(12)=q(13,1)-q(7,1)-134*cos(-(0.6414)+q(9,1));
+y(13)=q(14,1)-q(8,1)-134*sin(-(0.6414)+q(9,1));
+y(14)=q(16,1)-q(13,1)-207*cos(q(15,1));
+y(15)=q(17,1)-q(14,1)-207*sin(q(15,1));
+y(16)=299*cos(0.7586)-q(16,1)-196*cos(q(18,1));
+y(17)=-299*sin(0.7586)-q(17,1)-196*sin(q(18,1));
+y(18)=q(6,1)-0.9*3;
+endfunction
+[q5, fval, info,info2,Ck] = fsolve (@f3,qs(:,3));
+figure(4)
+plot([q5(4) q5(7)],[q5(5) q5(8)],'linewidth',3,[q5(7) q5(10)],[q5(8) q5(11)],'linewidth',3,
+[q5(10) q5(13)],[q5(11) q5(14)],'linewidth',3,
+[q5(7) q5(13)],[q5(8) q5(14)],'linewidth',3,
+[q5(10) (q5(1)+186)],[q5(11) (q5(1))],'linewidth',3,
+[q5(13) q5(16)],[q5(14) q5(17)],'linewidth',3,
+[q5(16) 299*cos(dag)],[q5(17) -299*sin(dag)],'linewidth',3);
+
